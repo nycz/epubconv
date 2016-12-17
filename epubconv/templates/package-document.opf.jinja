@@ -4,10 +4,10 @@
     <dc:identifier id="uid">{{ uid }}</dc:identifier>
     <dc:title>{{ title }}</dc:title>
     <dc:language>{{ language }}</dc:language>
-    {%- if description %}
+    {%- if description is defined %}
     <dc:description>{{ description }}</dc:description>
     {%- endif %}
-    {%- if creator %}
+    {%- if creator is defined %}
     <dc:creator>{{ creator }}</dc:creator>
     {%- endif %}
     <meta property="dcterms:modified">{{ modified }}</meta>
@@ -15,10 +15,10 @@
   <manifest>
     <item id="nav" href="{{ navigation_path }}" properties="nav" media-type="application/xhtml+xml" />
     <item id="ncx" href="{{ fallback_nav_path }}" media-type="application/x-dtbncx+xml" />
-    {%- if cover %}
+    {%- if cover is defined %}
     <item id="cover" href="{{ cover.path }}" properties="cover-image" media-type="{{ cover.media_type }}" />
     {%- endif %}
-    {%- if stylesheet_path %}
+    {%- if stylesheet_path is defined %}
     <item id="css" href="{{ stylesheet_path }}" media-type="text/css" />
     {%- endif %}
     {%- for item in files %}

@@ -3,13 +3,13 @@
   <head>
     <title>{{ title|e }}</title>
     <meta charset="utf-8" />
-    {%- if stylesheet_path %}
+    {%- if stylesheet_path is defined %}
     <link rel="stylesheet" type="text/css" href="{{ stylesheet_path }}" />
     {%- endif %}
   </head>
   <body>
     <h2>{{ title|e }}</h2>
-    {%- if paragraphs %}
+    {%- if paragraphs is defined %}
     {%- for paragraph in paragraphs %}
     <p>{{ paragraph|e }}</p>
     {%- endfor %}

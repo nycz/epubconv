@@ -7,8 +7,9 @@ import os.path
 import re
 import zipfile
 
-from jinja2 import Environment, PackageLoader
-env = Environment(loader=PackageLoader('epubconv', 'templates'))
+from jinja2 import Environment, PackageLoader, StrictUndefined
+env = Environment(loader=PackageLoader('epubconv', 'templates'),
+                  undefined=StrictUndefined)
 
 
 def export_ocf_zip(archive_path, files, opf):
@@ -93,7 +94,7 @@ def generate_navigation(uid, title, chapters):
     ncx_template = env.get_template('toc.ncx.jinja')
     nav_path = 'nav.xhtml'
     ncx_path = 'toc.ncx'
-    navigation = nav_template.render(chapters=nav_chapter_list)
+    navigation = nav_template.render(title=title, chapters=nav_chapter_list)
     fallback_nav = ncx_template.render(uid=uid, title=title,
                                        chapters=nav_chapter_list)
     return nav_path, ncx_path, [(nav_path, navigation), (ncx_path, fallback_nav)]
