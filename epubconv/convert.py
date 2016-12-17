@@ -24,15 +24,13 @@ def export_ocf_zip(archive_path, files, opf):
             f.writestr(path, data)
 
 
-def generate_opf(title, navigation_path, fallback_nav_path, chapters, language):
+def generate_opf(title, uid, navigation_path, fallback_nav_path, chapters, language):
     template = env.get_template('package-document.opf.jinja')
-    hash_ = hashlib.md5()
-    hash_.update(title.encode('utf-8'))
     data = {
         'modified': datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ'),
         'language': language,
         'title': title,
-        'id': hash_.hexdigest(),
+        'uid': uid,
         'navigation_path': navigation_path,
         'fallback_nav_path': fallback_nav_path,
         'files': [{'id': os.path.splitext(c['path'])[0],
@@ -49,7 +47,8 @@ def generate_opf(title, navigation_path, fallback_nav_path, chapters, language):
 
 def generate_paragraphs(text, split_on_tabs=False):
     if split_on_tabs:
-        paragraphs = [re.sub(r'\n+', '\n', x) for x in text.split('\n\t')]
+        paragraphs = [re.sub(r'\n+', '\n', x)
+                      for x in re.split(r'\n(?:\t| {2,})')]
     else:
         paragraphs = [x.replace('\n', ' ')
                       for x in text.split('\n\n') if x.strip()]
@@ -60,11 +59,14 @@ def generate_chapters(fname, chapter_line_rx, ignore_line_rx,
                       split_on_tabs=False):
     with open(fname) as f:
         raw_lines = f.read().split('\n')
-    lines = [line for line in raw_lines
-             if re.fullmatch(ignore_line_rx, line) is None]
+    if ignore_line_rx:
+        lines = [line for line in raw_lines
+                 if re.fullmatch(ignore_line_rx, line) is None]
+    else:
+        lines = raw_lines
     chapter_lines = [('', [])]
     for line in lines:
-        match = re.fullmatch(chapter_line_rx, line)
+        match = re.fullmatch(chapter_line_rx, line) if chapter_line_rx else False
         if match:
             if not ''.join(chapter_lines[-1][1]).strip():
                 chapter_lines.pop()
@@ -81,19 +83,31 @@ def generate_chapters(fname, chapter_line_rx, ignore_line_rx,
             for n, (title, lines) in enumerate(chapter_lines)]
 
 
-def create_ebook(input_file, output_file, title, split_on_tabs,
-                 chapter_regex, ignore_regex, language):
-    chapters = generate_chapters(input_file, chapter_regex, ignore_regex)
+def generate_navigation(uid, title, chapters):
+    if len(chapters) == 1:
+        nav_chapter_list = [{'path': chapters[0]['path'], 'title': title}]
+    else:
+        nav_chapter_list = [{'path': c['path'], 'title': c['title']}
+                            for c in chapters]
     nav_template = env.get_template('nav.xhtml.jinja')
     ncx_template = env.get_template('toc.ncx.jinja')
-    nav_chapter_list = [{'path': c['path'], 'title': c['title']} for c in chapters]
-    navigation = nav_template.render(chapters=nav_chapter_list)
-    fallback_nav = ncx_template.render(title=title, chapters=nav_chapter_list)
     nav_path = 'nav.xhtml'
     ncx_path = 'toc.ncx'
-    opf = generate_opf(title, nav_path, ncx_path, chapters, language)
-    files = [(nav_path, navigation), (ncx_path, fallback_nav)] +\
-            [(c['path'], c['data']) for c in chapters]
+    navigation = nav_template.render(chapters=nav_chapter_list)
+    fallback_nav = ncx_template.render(uid=uid, title=title,
+                                       chapters=nav_chapter_list)
+    return nav_path, ncx_path, [(nav_path, navigation), (ncx_path, fallback_nav)]
+
+
+def create_ebook(input_file, output_file, title, split_on_tabs,
+                 chapter_regex, ignore_regex, language):
+    hash_ = hashlib.md5()
+    hash_.update(title.encode('utf-8'))
+    uid = hash_.hexdigest()
+    chapters = generate_chapters(input_file, chapter_regex, ignore_regex)
+    nav_path, ncx_path, nav_files = generate_navigation(uid, title, chapters)
+    opf = generate_opf(title, uid, nav_path, ncx_path, chapters, language)
+    files = nav_files + [(c['path'], c['data']) for c in chapters]
     export_ocf_zip(output_file, files, opf)
 
 
