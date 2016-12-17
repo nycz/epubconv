@@ -40,3 +40,4 @@ pip-log.txt
 mypy-report
 
 *.epub
+experiments

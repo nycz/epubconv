@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>{{ title|e }}</title>
+    <meta charset="utf-8" />
+    {%- if stylesheet_path %}
+    <link rel="stylesheet" type="text/css" href="{{ stylesheet_path }}" />
+    {%- endif %}
+  </head>
+  <body>
+    <h2>{{ title|e }}</h2>
+    {%- if paragraphs %}
+    {%- for paragraph in paragraphs %}
+    <p>{{ paragraph|e }}</p>
+    {%- endfor %}
+    {%- else %}
+    {{ body }}
+    {%- endif %}
+  </body>
+</html>

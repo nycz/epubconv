@@ -1,0 +1,16 @@
+more attributes
+  - author
+  - cover image
+  - description
+more input formats
+  - some form of (x)html
+  - multiple files, one for each chapter
+  - epub (to modify or clean them up)
+tests
+some form of integration with epubcheck?
+nested chapters
+images
+stylesheets
+type hints
+comments/documentation
+more/better error handling probably
