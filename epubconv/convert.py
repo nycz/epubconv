@@ -45,10 +45,10 @@ def generate_opf(title, uid, navigation_path, fallback_nav_path, chapters, langu
     return template.render(data)
 
 
-def generate_paragraphs(text, split_on_tabs=False):
+def generate_paragraphs(text, split_on_tabs):
     if split_on_tabs:
         paragraphs = [re.sub(r'\n+', '\n', x)
-                      for x in re.split(r'\n(?:\t| {2,})')]
+                      for x in re.split(r'\n(?:\t| {2,})', text)]
     else:
         paragraphs = [x.replace('\n', ' ')
                       for x in text.split('\n\n') if x.strip()]
@@ -56,7 +56,7 @@ def generate_paragraphs(text, split_on_tabs=False):
 
 
 def generate_chapters(fname, chapter_line_rx, ignore_line_rx,
-                      split_on_tabs=False):
+                      split_on_tabs):
     with open(fname) as f:
         raw_lines = f.read().split('\n')
     if ignore_line_rx:
@@ -104,7 +104,7 @@ def create_ebook(input_file, output_file, title, split_on_tabs,
     hash_ = hashlib.md5()
     hash_.update(title.encode('utf-8'))
     uid = hash_.hexdigest()
-    chapters = generate_chapters(input_file, chapter_regex, ignore_regex)
+    chapters = generate_chapters(input_file, chapter_regex, ignore_regex, split_on_tabs)
     nav_path, ncx_path, nav_files = generate_navigation(uid, title, chapters)
     opf = generate_opf(title, uid, nav_path, ncx_path, chapters, language)
     files = nav_files + [(c['path'], c['data']) for c in chapters]
