@@ -38,6 +38,8 @@ pip-log.txt
 
 # mypy
 mypy-report
+mypy-coverage.sh
+run-mypy.sh
 
 *.epub
 experiments

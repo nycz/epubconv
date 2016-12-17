@@ -8,7 +8,7 @@ setup(
     author='nycz',
     license='MIT',
     classifiers=[
-        'Development Status :: 3 - Pre-Alpha',
+        'Development Status :: 3 - Alpha',
         'Environment :: Console',
         'Intended Audience :: End Users/Desktop',
         'License :: OSI Approved :: MIT License',
